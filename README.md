@@ -1,6 +1,14 @@
 # tocer.py
 
-Scaffold nested documents based on TOC
+Scaffold nested documents based on TOC.
+
+Like this:
+
+![](images/tocer.png)
+
+# Why
+
+Because any good documentation started with a TOC (or at least I think so).
 
 # Prerequisites
 
@@ -20,3 +28,9 @@ Scaffold nested documents based on TOC
 # Testing
 
 * Run `test.sh`
+
+# FAQ
+
+## I have run tocer.py. Can I update the TOC and re run tocer.py?
+
+Yes you can.
