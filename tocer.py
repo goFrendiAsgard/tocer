@@ -106,7 +106,7 @@ def get_backlink_path(toc_file_name: str, level: int) -> str:
 
 def create_doc(toc_file_name: str, level: int, caption: str, doc_path: str):
     dirname = os.path.dirname(doc_path)
-    if not os.path.exists(dirname):
+    if dirname != '' and not os.path.exists(dirname):
         os.makedirs(dirname)
     if not os.path.exists(doc_path):
         doc_file = open(doc_path, 'w')
