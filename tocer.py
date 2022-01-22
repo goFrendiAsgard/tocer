@@ -1,9 +1,12 @@
-from asyncore import read
-import re, os, sys
-from typing import Tuple
+import re
+import os
+import sys
+from typing import Tuple, Optional
+
 
 def to_kebab(string: str) -> str:
-    string = string.replace(' ', '-')
+    string = re.sub(r'[^a-zA-Z0-0\-]', ' ', string).strip()
+    string = string.replace(' ', '-').strip()
     string = re.sub(r'(?<!^)(?=[A-Z])', '-', string).lower()
     string = re.sub(r'(-+)', '-', string).lower()
     return string
@@ -11,33 +14,39 @@ def to_kebab(string: str) -> str:
 
 class LineChecker():
     def __init__(self, line: str):
-        self.line_match = re.match(r'^(\s*)\* (.+)$', line)
-    
+        pattern = r'^(\s*)\* (.+)$'
+        self.line_match: Optional[re.Match[str]] = re.match(pattern, line)
+
     def is_toc_item(self):
         return self.line_match is not None
-    
-    def get_components(self) -> Tuple[str]:
+
+    def get_components(self) -> Tuple[str, str]:
         '''
         Return a tuple.
         The first element of the tuple is the indentation.
         The second element of the tuple is the content of the TOC
         '''
+        if self.line_match is None:
+            return ('', '')
         return self.line_match.groups()
 
 
 class LinkChecker():
     def __init__(self, content: str):
-        self.link_match = re.match(r'\[(.+)]\((.+)\)', content)
-    
+        pattern = r'\[(.+)]\((.+)\)'
+        self.link_match: Optional[re.Match[str]] = re.match(pattern, content)
+
     def is_link(self):
         return self.link_match is not None
-    
-    def get_components(self) -> Tuple[str]:
+
+    def get_components(self) -> Tuple[str, str]:
         '''
         Return a tuple.
         The first element of the tuple is the caption
         The second element of the tuple is the doc_path
         '''
+        if self.link_match is None:
+            return ('', '')
         return self.link_match.groups()
 
 
@@ -45,15 +54,15 @@ class State():
     def __init__(self):
         self.indentations = []
         self.subdirs = []
-    
+
     def get_path(self) -> str:
         if len(self.subdirs) == 0:
             return ''
         return os.path.join(*self.subdirs)
-    
+
     def get_indentation(self) -> str:
         return ''.join(self.indentations)
-    
+
     def is_leaf(self, current_indentation: str, next_line_checker: LineChecker) -> bool:
         if not next_line_checker.is_toc_item():
             return True
@@ -61,7 +70,7 @@ class State():
         if len(next_line_indentation) <= len(current_indentation):
             return True
         return False
-    
+
     def get_level(self) -> int:
         return len(self.subdirs)
 
@@ -98,7 +107,7 @@ def get_new_doc_path(toc_file_name: str, state: State, indentation: str, next_li
 
 def get_backlink_path(toc_file_name: str, level: int) -> str:
     if level == 0:
-        return './{readme_file_name}'.join(toc_file_name)
+        return './{toc_file_name}'.join(toc_file_name=toc_file_name)
     backlink_parts = ['..'] * level
     backlink_parts.append(toc_file_name)
     return os.path.join(*backlink_parts)
@@ -112,7 +121,7 @@ def create_doc(toc_file_name: str, level: int, caption: str, doc_path: str):
         doc_file = open(doc_path, 'w')
         backlink_path = get_backlink_path(toc_file_name, level)
         doc_content = '\n'.join([
-            '[⬅️ TOC]({backlink_path})'.format(backlink_path=backlink_path),
+            '[⬅️ Table of Content]({backlink_path})'.format(backlink_path=backlink_path),
             '# {caption}'.format(caption=caption),
         ])
         doc_file.write(doc_content)
@@ -147,6 +156,7 @@ def main(toc_file_name: str):
     new_readme_file = open(toc_file_name, 'w')
     new_readme_file.write('\n'.join(new_lines))
 
+
 if __name__ == '__main__':
-    toc_file_name = sys.argv[1] if len(sys.argv) > 0 else 'README.md'
+    toc_file_name = sys.argv[1] if len(sys.argv) > 1 else 'README.md'
     main(toc_file_name)

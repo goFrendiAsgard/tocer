@@ -4,7 +4,7 @@ A demo, creating documentations based on particle standard model.
 
 # Table of Content
 
-* Fermions
+* 🧶 Fermions
   * Leptons
     * Electron
     * [Electron Neutrino](fermions/leptons/electron-neutrino.md)
@@ -31,7 +31,7 @@ A demo, creating documentations based on particle standard model.
     * Rho
     * B Zero
     * Eta C
-* Bosons
+* 🧶 Bosons
   * Photon
   * W Negative
   * W Positive

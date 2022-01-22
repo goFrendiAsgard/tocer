@@ -19,7 +19,7 @@ do
     fi
 done
 
-if [ ! -z "$(cat TOC.md | grep "* \[Fermions](fermions/TOC.md)")" ]
+if [ ! -z "$(cat TOC.md | grep "* \[🧶 Fermions](fermions/TOC.md)")" ]
 then
     echo "[PASS] Fermions link valid"
 else
