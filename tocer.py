@@ -1,7 +1,7 @@
+from typing import Tuple, Optional
 import re
 import os
 import sys
-from typing import Tuple, Optional
 
 
 def to_kebab(string: str) -> str:
