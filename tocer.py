@@ -107,7 +107,7 @@ def get_new_doc_path(toc_file_name: str, state: State, indentation: str, next_li
 
 def get_backlink_path(toc_file_name: str, level: int) -> str:
     if level == 0:
-        return './{toc_file_name}'.join(toc_file_name=toc_file_name)
+        return './{toc_file_name}'.format(toc_file_name=toc_file_name)
     backlink_parts = ['..'] * level
     backlink_parts.append(toc_file_name)
     return os.path.join(*backlink_parts)
