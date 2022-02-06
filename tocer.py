@@ -5,7 +5,7 @@ import sys
 
 
 def to_kebab(string: str) -> str:
-    string = re.sub(r'[^a-zA-Z0-0\-]', ' ', string).strip()
+    string = re.sub(r'[^a-zA-Z0-9\-]', ' ', string).strip()
     string = string.replace(' ', '-').strip()
     string = re.sub(r'(?<!^)(?=[A-Z])', '-', string).lower()
     string = re.sub(r'(-+)', '-', string).lower()
@@ -14,44 +14,40 @@ def to_kebab(string: str) -> str:
 
 class LineChecker():
     def __init__(self, line: str):
-        pattern = r'^(\s*)\* (.+)$'
-        self.line_match: Optional[re.Match[str]] = re.match(pattern, line)
+        self.line = line
+        line_pattern = r'^(\s*)\* (.+)$'
+        self.line_match: Optional[re.Match[str]] = re.match(line_pattern, line)
+        link_paattern = r'(\s*)\* \[(.+)]\((.+)\)'
+        self.link_match: Optional[re.Match[str]] = re.match(link_paattern, line)
+    
+    def get_line(self) -> str:
+        return self.line
 
-    def is_toc_item(self):
+    def is_toc_item(self) -> bool:
         return self.line_match is not None
 
-    def get_components(self) -> Tuple[str, str]:
+    def is_link(self) -> bool:
+        return self.link_match is not None
+
+    def get_components(self) -> Tuple[str, str, str]:
         '''
         Return a tuple.
         The first element of the tuple is the indentation.
-        The second element of the tuple is the content of the TOC
+        The second element of the tuple is the caption
+        The last element of the tuple is the url
         '''
         if self.line_match is None:
-            return ('', '')
-        return self.line_match.groups()
-
-
-class LinkChecker():
-    def __init__(self, content: str):
-        pattern = r'\[(.+)]\((.+)\)'
-        self.link_match: Optional[re.Match[str]] = re.match(pattern, content)
-
-    def is_link(self):
-        return self.link_match is not None
-
-    def get_components(self) -> Tuple[str, str]:
-        '''
-        Return a tuple.
-        The first element of the tuple is the caption
-        The second element of the tuple is the doc_path
-        '''
+            return ('', '', '')
         if self.link_match is None:
-            return ('', '')
+            indentation, caption = self.line_match.groups()
+            return (indentation, caption, '')
         return self.link_match.groups()
 
 
 class State():
     def __init__(self):
+        self.previous_indentations = []
+        self.previous_subdirs = []
         self.indentations = []
         self.subdirs = []
 
@@ -66,7 +62,7 @@ class State():
     def is_leaf(self, current_indentation: str, next_line_checker: LineChecker) -> bool:
         if not next_line_checker.is_toc_item():
             return True
-        next_line_indentation, _ = next_line_checker.get_components()
+        next_line_indentation, _, _ = next_line_checker.get_components()
         if len(next_line_indentation) <= len(current_indentation):
             return True
         return False
@@ -74,25 +70,27 @@ class State():
     def get_level(self) -> int:
         return len(self.subdirs)
 
-    def update(self, current_line_checker: LineChecker, current_link_checker: LinkChecker, next_line_checker: LineChecker):
-        current_indentation, current_caption = current_line_checker.get_components()
+    def update(self, current_line_checker: LineChecker, next_line_checker: LineChecker):
+        self.previous_indentations = self.indentations
+        self.previous_subdirs = self.subdirs
+        current_indentation, current_caption, _ = current_line_checker.get_components()
         while len(current_indentation) < len(self.get_indentation()):
             self.indentations = self.indentations[:len(self.indentations)-1]
             self.subdirs = self.subdirs[:len(self.subdirs)-1]
-        if self.is_leaf(current_indentation, next_line_checker):
+        # current is leaf
+        if self.is_leaf(current_indentation, next_line_checker) and len(current_indentation) >= len(''.join(self.previous_indentations)):
             return
         if len(self.get_indentation()) == len(current_indentation) and len(self.indentations) > 0:
-            # previous non-leaf item is on the same level, remove last element of the subdirs
+            # previous item is on the same level, remove last element of the subdirs
             self.subdirs = self.subdirs[:len(self.subdirs)-1]
-        else:
-            # previous non-leaf item is on the top level, add new item
+        else :
+            # previous item is on the top level, add new item
             new_indentation = current_indentation[len(self.get_indentation()):]
             self.indentations.append(new_indentation)
         # append to subdirs
-        if current_link_checker.is_link():
-            current_caption, _ =  current_link_checker.get_components()
-        new_subdir = to_kebab(current_caption)
-        self.subdirs.append(new_subdir)
+        if not self.is_leaf(current_indentation, next_line_checker):
+            new_subdir = to_kebab(current_caption)
+            self.subdirs.append(new_subdir)
 
 
 def get_new_doc_path(toc_file_name: str, state: State, indentation: str, next_line_checker: LineChecker, caption: str) -> str:
@@ -137,21 +135,19 @@ def main(toc_file_name: str):
         if not line_checker.is_toc_item():
             new_lines.append(old_line)
             continue
-        indentation, original_caption = line_checker.get_components()
-        link_checker = LinkChecker(original_caption)
+        indentation, caption, link = line_checker.get_components()
         next_line = old_lines[index+1] if index+1 < len(old_lines) else ''
         next_line_checker = LineChecker(next_line)
-        state.update(line_checker, link_checker, next_line_checker)
+        state.update(line_checker, next_line_checker)
         level = state.get_level()
-        if link_checker.is_link():
+        if line_checker.is_link():
             # already a link, don't touch this line
             new_lines.append(old_line)
-            original_caption, doc_path = link_checker.get_components()
-            create_doc(toc_file_name, level, original_caption, doc_path)
+            create_doc(toc_file_name, level, caption, link)
             continue
-        new_doc_path = get_new_doc_path(toc_file_name, state, indentation, next_line_checker, original_caption)
-        new_line = '{indentation}* [{caption}]({link})'.format(indentation=indentation, caption=original_caption, link=new_doc_path)
-        create_doc(toc_file_name, level, original_caption, new_doc_path)
+        new_doc_path = get_new_doc_path(toc_file_name, state, indentation, next_line_checker, caption)
+        new_line = '{indentation}* [{caption}]({link})'.format(indentation=indentation, caption=caption, link=new_doc_path)
+        create_doc(toc_file_name, level, caption, new_doc_path)
         new_lines.append(new_line)
     new_readme_file = open(toc_file_name, 'w')
     new_readme_file.write('\n'.join(new_lines))

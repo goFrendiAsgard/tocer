@@ -9,7 +9,7 @@ cp template.md TOC.md
 python tocer.py TOC.md
 
 echo "Testing"
-for EXPECTED_FILE in fermions/TOC.md fermions/leptons/TOC.md fermions/leptons/electron.md fermions/leptons/electron-neutrino.md
+for EXPECTED_FILE in fermions/TOC.md fermions/leptons/TOC.md fermions/leptons/electron.md fermions/leptons/electron-neutrino.md fermions/quarks/TOC.md fermions/quarks/bottom.md
 do
     if [ -f "${EXPECTED_FILE}" ]
     then
@@ -46,4 +46,69 @@ then
 else
     echo "[FAIL] electron neutrino link invalid"
 fi
+
+if [ ! -z "$(cat TOC.md | grep "* \[Quarks](fermions/quarks/TOC.md)")" ]
+then
+    echo "[PASS] quarks link valid"
+else
+    echo "[FAIL] quarks link invalid"
+fi
+
+if [ ! -z "$(cat TOC.md | grep "* \[Bottom](fermions/quarks/bottom.md)")" ]
+then
+    echo "[PASS] bottom link valid"
+else
+    echo "[FAIL] bottom link invalid"
+fi
+
+if [ ! -z "$(cat TOC.md | grep "* \[a](a/TOC.md)")" ]
+then
+    echo "[PASS] a link valid"
+else
+    echo "[FAIL] a link invalid"
+fi
+
+if [ ! -z "$(cat TOC.md | grep "* \[a.1](a/a-1/TOC.md)")" ]
+then
+    echo "[PASS] a.1 link valid"
+else
+    echo "[FAIL] a.1 link invalid"
+fi
+
+if [ ! -z "$(cat TOC.md | grep "* \[a.1.1](a/a-1/a-1-1/TOC.md)")" ]
+then
+    echo "[PASS] a.1.1 link valid"
+else
+    echo "[FAIL] a.1.1 link invalid"
+fi
+
+if [ ! -z "$(cat TOC.md | grep "* \[a.1.1.1](a/a-1/a-1-1/a-1-1-1.md)")" ]
+then
+    echo "[PASS] a.1.1 link valid"
+else
+    echo "[FAIL] a.1.1 link invalid"
+fi
+
+if [ ! -z "$(cat TOC.md | grep "* \[a.1.2](a/a-1/a-1-2.md)")" ]
+then
+    echo "[PASS] a.1.2 link valid"
+else
+    echo "[FAIL] a.1.2 link invalid"
+fi
+
+if [ ! -z "$(cat TOC.md | grep "* \[a.2](a/a-2/TOC.md)")" ]
+then
+    echo "[PASS] a.2 link valid"
+else
+    echo "[FAIL] a.2 link invalid"
+fi
+
+if [ ! -z "$(cat TOC.md | grep "* \[a.2.1](a/a-2/a-2-1.md)")" ]
+then
+    echo "[PASS] a.2.1 link valid"
+else
+    echo "[FAIL] a.2.1 link invalid"
+fi
+
+
 
