@@ -1,8 +1,11 @@
 set -e
 echo "Clean up"
 rm -f TOC.md
+rm -f b.md
+rm -f c.md
 rm -Rf fermions
 rm -Rf bosons
+rm -Rf a
 
 echo "Prepare"
 cp template.md TOC.md
