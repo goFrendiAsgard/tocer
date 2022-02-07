@@ -12,6 +12,9 @@ def to_kebab(string: str) -> str:
     string = re.sub(r'(-+)', '-', string).lower()
     return string
 
+def is_match_tag(tag: str, line: str) -> bool:
+    pattern = r'<!--{}-->'.format(tag)
+    return re.match(pattern, line) is not None
 
 TNode = TypeVar('TNode', bound='Node')
 class Node():
@@ -99,8 +102,12 @@ class Node():
             doc_file = open(link, 'w')
             backlink = self._get_backlink()
             doc_content = '\n'.join([
+                '<!--startTocHeader-->',
                 '[⬅️ Table of Content]({})'.format(backlink),
                 '# {}'.format(self.caption),
+                '<!--endTocHeader-->',
+                '<!--startTocSubtopic-->',
+                '<!--endTocSubtopic-->',
             ])
             doc_file.write(doc_content)
         for child in self.children:
@@ -129,7 +136,14 @@ class Tree():
         self._parse_old_lines()
 
     def _parse_old_lines(self):
+        should_parse_toc = False
         for line_index, line in enumerate(self.old_lines):
+            if is_match_tag('startToc', line):
+                should_parse_toc = True
+            elif is_match_tag('endToc', line):
+                should_parse_toc = False
+            if not should_parse_toc:
+                continue
             new_node = Node(line_index, line, self.toc_file_name)
             if not new_node.is_item():
                 continue

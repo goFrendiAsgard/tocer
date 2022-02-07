@@ -4,6 +4,7 @@ A demo, creating documentations based on particle standard model.
 
 # Standard Model
 
+<!--startToc-->
 * 🧶 Fermions
   * Leptons
     * Electron
@@ -37,13 +38,21 @@ A demo, creating documentations based on particle standard model.
   * W Positive
   * Z Boson
   * Gluon
+<!--endToc-->
 
 # What is standard model?
 
 I don't know dude. Seriously, I don't know. Here is a [link](https://home.cern/science/physics/standard-model)
 
-# Other items
+# Regular item list
 
+* Sliffer The Sky Dragon
+* Obelisk The Tormentor
+* Winged Dragon of Ra
+
+# Other TOC
+
+<!--startToc-->
 * a
   * a.1
     * a.1.1
@@ -54,4 +63,5 @@ I don't know dude. Seriously, I don't know. Here is a [link](https://home.cern/s
   * a.3
 * b
 * c
+<!--endToc-->
 
