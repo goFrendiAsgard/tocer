@@ -1,3 +1,4 @@
+from turtle import back
 from typing import List, Tuple, Optional, TypeVar
 import re
 import os
@@ -113,6 +114,9 @@ class Node():
         while not cursor.is_root():
             backlink_parts.append('..')
             cursor = cursor.parent 
+        if self.is_leaf():
+            backlink_parts = backlink_parts[:len(backlink_parts)-1]
+        backlink_parts.append(self.toc_file_name)
         return os.path.join(*backlink_parts)
 
 class Tree():
