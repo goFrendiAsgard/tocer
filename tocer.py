@@ -1,5 +1,5 @@
 from turtle import back
-from typing import List, Tuple, Optional, TypeVar
+from typing import List, Optional, TypeVar
 import re
 import os
 import sys
@@ -26,7 +26,7 @@ class Node():
         self.line = line
         self.toc_file_name = toc_file_name
         self.indentation = ''
-        self.caption = ''
+        self.caption = '🏠'
         self.link = ''
         item_pattern = r'^(\s*)\* (.+)$'
         self.item_match: Optional[re.Match[str]] = re.match(item_pattern, line)
@@ -37,6 +37,7 @@ class Node():
     def _populate_line_properties(self): 
         if self.is_link():
             self.indentation, self.caption, self.link = self.link_match.groups()
+            return
         if self.is_item():
             self.indentation, self.caption = self.item_match.groups()
 
@@ -56,10 +57,10 @@ class Node():
         self.children.append(other_node)
         other_node.parent = self
 
-    def get_indentation_level(self) -> int:
+    def get_indentation_count(self) -> int:
         return len(self.indentation)
 
-    def get_link(self) -> int:
+    def get_link(self) -> str:
         if self.link:
             return self.link
         links = []
@@ -73,7 +74,11 @@ class Node():
         if self.is_leaf():
             return link_prefix + '.md'
         return os.path.join(link_prefix, self.toc_file_name)
-    
+
+    def get_relative_link(self, start: str):
+        link = self.get_link()
+        return os.path.relpath(link, start)
+
     def get_new_line(self) -> str:
         if self.is_link():
             return self.line
@@ -83,7 +88,7 @@ class Node():
         print('Line Index: {}, New Line:{}'.format(self.line_index, self.get_new_line()))
         for child in self.children:
             child.print()
-    
+
     def replace_lines(self, lines: List[str]) -> List[str]:
         line_index = self.line_index
         if line_index >= 0:
@@ -92,39 +97,93 @@ class Node():
         for child in self.children:
             lines = child.replace_lines(lines)
         return lines 
-    
-    def create_doc(self):
+
+    def adjust_doc(self):
+        self._create_doc()
+        self._parse_doc()
+        for child in self.children:
+            child.adjust_doc()
+ 
+    def _create_doc(self):
         link = self.get_link()
         dirname = os.path.dirname(link)
         if dirname != '' and not os.path.exists(dirname):
             os.makedirs(dirname)
-        if not os.path.exists(link):
-            doc_file = open(link, 'w')
-            backlink = self._get_backlink()
-            doc_content = '\n'.join([
+        if os.path.exists(link):
+            return
+        doc_file = open(link, 'w')
+        doc_content = '\n'.join([
+            '<!--startTocHeader-->',
+            '<!--endTocHeader-->',
+            'TODO: Write about `{}`'.format(self.caption),
+            '<!--startTocSubtopic-->',
+            '<!--endTocSubtopic-->',
+        ])
+        doc_file.write(doc_content)
+
+    def _parse_doc(self):
+        link = self.get_link()
+        old_doc_file = open(link, 'r')
+        content = old_doc_file.read()
+        # replace tocHeader
+        content = re.sub(
+            r'<!--startTocHeader-->.*<!--endTocHeader-->', 
+            '\n'.join([
                 '<!--startTocHeader-->',
-                '[⬅️ Table of Content]({})'.format(backlink),
+                self._get_breadcrumb(),
                 '# {}'.format(self.caption),
                 '<!--endTocHeader-->',
+            ]), 
+            content,
+            flags=re.DOTALL
+        )
+        # replace tocSubtopic
+        content = re.sub(
+            r'<!--startTocSubtopic-->.*<!--endTocSubtopic-->', 
+            '\n'.join([
                 '<!--startTocSubtopic-->',
+                self._get_subtopic(),
                 '<!--endTocSubtopic-->',
-            ])
-            doc_file.write(doc_content)
-        for child in self.children:
-            child.create_doc()
+            ]), 
+            content,
+            flags=re.DOTALL
+        )
+        new_doc_file = open(link, 'w')
+        new_doc_file.write(content)
 
-    def _get_backlink(self):
+    def _get_subtopic(self) -> str:
+        current_dir = os.path.dirname(self.get_link())
+        subtopic_list = self._get_subtopic_list('', current_dir)
+        if len(subtopic_list) == 0:
+            return ''
+        else:
+            return '\n'.join([
+                '# Sub-topics',
+                '\n'.join(subtopic_list)
+            ])
+
+    def _get_subtopic_list(self, indentation:str, current_dir:str) -> List[str]:
+        subtopic_list = []
+        for child in self.children:
+            subtopic_list.append('{}* [{}]({})'.format(indentation, child.caption, child.get_relative_link(current_dir)))
+            subtopic_list += child._get_subtopic_list(indentation+'  ', current_dir)
+        return subtopic_list
+
+    def _get_breadcrumb(self) -> str:
         if self.is_root():
-            return './{}'.format(self.toc_file_name)
-        backlink_parts = []
-        cursor = self
-        while not cursor.is_root():
-            backlink_parts.append('..')
-            cursor = cursor.parent 
-        if self.is_leaf():
-            backlink_parts = backlink_parts[:len(backlink_parts)-1]
-        backlink_parts.append(self.toc_file_name)
-        return os.path.join(*backlink_parts)
+            return ''
+        breadcrumb_list = []
+        initial_backlink = self.toc_file_name if self.is_leaf() else os.path.join(*['..', self.toc_file_name])
+        backlink_parts = [initial_backlink]
+        cursor = self.parent
+        while cursor is not None:
+            backlink = os.path.join(*backlink_parts)
+            breadcrumb = '[{}]({})'.format(cursor.caption, backlink)
+            breadcrumb_list.insert(0, breadcrumb)
+            cursor = cursor.parent
+            backlink_parts.insert(0, '..')
+        return ' > '.join(breadcrumb_list)
+
 
 class Tree():
 
@@ -151,7 +210,7 @@ class Tree():
                 self.current.add_child(new_node)
                 self.current = new_node
                 continue
-            while not self.current.is_root() and self.current.get_indentation_level() >= new_node.get_indentation_level():
+            while not self.current.is_root() and self.current.get_indentation_count() >= new_node.get_indentation_count():
                 self.current = self.current.parent
             self.current.add_child(new_node)
             self.current = new_node
@@ -164,7 +223,7 @@ class Tree():
         return self.root.replace_lines(new_lines)
 
     def create_doc(self):
-        self.root.create_doc()
+        self.root.adjust_doc()
 
 
 def main(toc_file_name: str):

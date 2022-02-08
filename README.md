@@ -5,11 +5,11 @@ Create nested documents based on item list.
 From this `README.md`:
 
 ```bash
-❯ mkdir testDir
-❯ cd testDir
+mkdir testDir
+cd testDir
 
 # Create a README.md
-❯ cat <<EOF > README.md
+cat <<EOF > README.md
 # Non TOC
 * First item
 * Second item
@@ -26,12 +26,12 @@ From this `README.md`:
 EOF
 
 # Run tocer.py
-❯ python tocer.py
+python ~/tocer/tocer.py
 ```
 
 Into this directory structure:
 
-```bash
+```
 # Get directory structure
 ❯ tree
 .
@@ -50,9 +50,9 @@ Into this directory structure:
 3 directories, 8 files
 ```
 
-Here is your new `README.md`:
+with new `README.md`:
 
-```bash
+```
 ❯ cat README.md
 # Non TOC
 * First item
@@ -69,16 +69,21 @@ Here is your new `README.md`:
 <!--endToc-->
 ```
 
-And other documents:
+and respoective subtopics:
 
-```bash
-❯ cat pokemon/kanto/starter/bulbasaur.md
+```
+❯ cat pokemon/kanto/starter/README.md
 <!--startTocHeader-->
-[⬅ Table of Content](../../../README.md)
-# Bulbasaur
+[🏠](../../../README.md) > [Pokemon](../../README.md) > [Kanto](../README.md)
+# Starter
 <!--endTocHeader-->
+TODO: Write about `Starter`
 <!--startTocSubtopic-->
-<!--endTocSubtopic-->%
+# Sub-topics
+* [Bulbasaur](bulbasaur.md)
+* [Squirtle](squirtle.md)
+* [Charmender](charmender.md)
+<!--endTocSubtopic-->
 ```
 
 
