@@ -1,4 +1,4 @@
-# tocer.py
+# Tocer
 
 Create nested documents based on item list.
 
@@ -50,7 +50,10 @@ Into this directory structure:
 3 directories, 8 files
 ```
 
-with new `README.md`:
+<details>
+<summary>
+with new <code>README.md</code>:
+</summary>
 
 ```
 ❯ cat README.md
@@ -68,8 +71,12 @@ with new `README.md`:
    * [Johto](pokemon/johto.md)
 <!--endToc-->
 ```
+</details>
 
-and respoective subtopics:
+<details>
+<summary>
+and respective sub documents:
+</summary>
 
 ```
 ❯ cat pokemon/kanto/starter/README.md
@@ -85,6 +92,7 @@ TODO: Write about `Starter`
 * [Charmender](charmender.md)
 <!--endTocSubtopic-->
 ```
+</details>
 
 
 # Why
@@ -96,14 +104,20 @@ Because any good documentation started with a TOC (or at least I think so).
 * Python
 * just that, nothing else
 
+# How to install
+
+```bash
+git clone git@github.com:state-alchemists/tocer.git ${HOME}/tocer
+```
+
 # How to use
 
-* Create a TOC file (e.g: `README.md`) containing nested bullets (use asterisk and 2 spaces)
+* Create a TOC file (e.g: `README.md`) containing nested bullets flanked by two HTML tags: `<!--startToc>` and `<!--endToc>`
 * Run `python tocer.py <toc-file>` (e.g: `python tocer.py README.md`).
 
 # Expected result
 
-* Every bullet item in your TOC file will turn into link, unless it is already a link.
+* Every bullet item between `<!--startToc>` and `<!--endToc>` in your TOC file will be turned into link, unless it already is.
 * If the documents refered by the links are not exist, they will be created.
 
 # Testing
