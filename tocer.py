@@ -12,9 +12,33 @@ def to_kebab(string: str) -> str:
     string = re.sub(r'(-+)', '-', string).lower()
     return string
 
-def is_match_tag(tag: str, line: str) -> bool:
-    pattern = r'<!--{}-->'.format(tag)
+def get_start_tag(tag_name: str) -> str:
+    return '<!--start{}-->'.format(tag_name.capitalize())
+
+def get_end_tag(tag_name: str) -> str:
+    return '<!--end{}-->'.format(tag_name.capitalize())
+
+def is_match_start_tag(tag_name: str, line: str) -> bool:
+    pattern = r'{}'.format(get_start_tag(tag_name))
     return re.match(pattern, line) is not None
+
+def is_match_end_tag(tag_name: str, line: str) -> bool:
+    pattern = r'{}'.format(get_end_tag(tag_name))
+    return re.match(pattern, line) is not None
+
+def replace_tag_content(tag_name: str, replacement: str, text: str) -> str:
+    start_tag = get_start_tag(tag_name)
+    end_tag = get_end_tag(tag_name)
+    return re.sub(
+        r'{}.*{}'.format(start_tag, end_tag), 
+        '\n'.join([
+            start_tag,
+            replacement,
+            end_tag,
+        ]), 
+        text,
+        flags=re.DOTALL
+    )
 
 TNode = TypeVar('TNode', bound='Node')
 class Node():
@@ -27,7 +51,7 @@ class Node():
         self.toc_file_name = toc_file_name
         self.indentation = ''
         self.caption = '🏠'
-        self.link = ''
+        self.old_link = ''
         item_pattern = r'^(\s*)\* (.+)$'
         self.item_match: Optional[re.Match[str]] = re.match(item_pattern, line)
         link_pattern = r'(\s*)\* \[(.+)]\((.+)\)'
@@ -36,7 +60,7 @@ class Node():
 
     def _populate_line_properties(self): 
         if self.is_link():
-            self.indentation, self.caption, self.link = self.link_match.groups()
+            self.indentation, self.caption, self.old_link = self.link_match.groups()
             return
         if self.is_item():
             self.indentation, self.caption = self.item_match.groups()
@@ -60,9 +84,7 @@ class Node():
     def get_indentation_count(self) -> int:
         return len(self.indentation)
 
-    def get_link(self) -> str:
-        if self.link:
-            return self.link
+    def get_new_link(self) -> str:
         links = []
         cursor = self
         while not cursor.is_root():
@@ -75,14 +97,12 @@ class Node():
             return link_prefix + '.md'
         return os.path.join(link_prefix, self.toc_file_name)
 
-    def get_relative_link(self, start: str):
-        link = self.get_link()
+    def get_new_relative_link(self, start: str):
+        link = self.get_new_link()
         return os.path.relpath(link, start)
 
     def get_new_line(self) -> str:
-        if self.is_link():
-            return self.line
-        return '{}* [{}]({})'.format(self.indentation, self.caption, self.get_link())
+        return '{}* [{}]({})'.format(self.indentation, self.caption, self.get_new_link())
 
     def print(self):
         print('Line Index: {}, New Line:{}'.format(self.line_index, self.get_new_line()))
@@ -105,69 +125,38 @@ class Node():
             child.adjust_doc()
  
     def _create_doc(self):
-        link = self.get_link()
-        dirname = os.path.dirname(link)
+        new_link = self.get_new_link()
+        dirname = os.path.dirname(new_link)
         if dirname != '' and not os.path.exists(dirname):
             os.makedirs(dirname)
-        if os.path.exists(link):
+        if self.old_link != new_link and os.path.exists(self.old_link):
+            os.rename(self.old_link, new_link)
+        if os.path.exists(new_link):
             return
-        doc_file = open(link, 'w')
+        doc_file = open(new_link, 'w')
         doc_content = '\n'.join([
-            '<!--startTocHeader-->',
-            '<!--endTocHeader-->',
+            get_start_tag('tocHeader'),
+            get_end_tag('tocHeader'),
             'TODO: Write about `{}`'.format(self.caption),
-            '<!--startTocSubtopic-->',
-            '<!--endTocSubtopic-->',
+            get_start_tag('tocSubtopic'),
+            get_end_tag('tocSubtopic'),
         ])
         doc_file.write(doc_content)
 
     def _parse_doc(self):
-        link = self.get_link()
+        link = self.get_new_link()
         old_doc_file = open(link, 'r')
         content = old_doc_file.read()
-        # replace tocHeader
-        content = re.sub(
-            r'<!--startTocHeader-->.*<!--endTocHeader-->', 
-            '\n'.join([
-                '<!--startTocHeader-->',
-                self._get_breadcrumb(),
-                '# {}'.format(self.caption),
-                '<!--endTocHeader-->',
-            ]), 
-            content,
-            flags=re.DOTALL
-        )
-        # replace tocSubtopic
-        content = re.sub(
-            r'<!--startTocSubtopic-->.*<!--endTocSubtopic-->', 
-            '\n'.join([
-                '<!--startTocSubtopic-->',
-                self._get_subtopic(),
-                '<!--endTocSubtopic-->',
-            ]), 
-            content,
-            flags=re.DOTALL
-        )
+        content = replace_tag_content('tocHeader', self._get_header(), content)
+        content = replace_tag_content('tocSubtopic', self._get_subtopic(), content)
         new_doc_file = open(link, 'w')
         new_doc_file.write(content)
 
-    def _get_subtopic(self) -> str:
-        current_dir = os.path.dirname(self.get_link())
-        subtopic_list = self._get_subtopic_list('', current_dir)
-        if len(subtopic_list) == 0:
-            return ''
-        else:
-            return '\n'.join([
-                '# Sub-topics',
-                '\n'.join(subtopic_list)
-            ])
-
-    def _get_subtopic_list(self, indentation:str, current_dir:str) -> List[str]:
-        subtopic_list = []
-        for child in self.children:
-            subtopic_list.append('{}* [{}]({})'.format(indentation, child.caption, child.get_relative_link(current_dir)))
-            subtopic_list += child._get_subtopic_list(indentation+'  ', current_dir)
-        return subtopic_list
+    def _get_header(self) -> str:
+        return '\n'.join([
+            self._get_breadcrumb(),
+            '# {}'.format(self.caption),
+        ])
 
     def _get_breadcrumb(self) -> str:
         if self.is_root():
@@ -184,6 +173,24 @@ class Node():
             backlink_parts.insert(0, '..')
         return ' > '.join(breadcrumb_list)
 
+    def _get_subtopic(self) -> str:
+        current_dir = os.path.dirname(self.get_new_link())
+        subtopic_list = self._get_subtopic_list('', current_dir)
+        if len(subtopic_list) == 0:
+            return ''
+        else:
+            return '\n'.join([
+                '# Sub-topics',
+                '\n'.join(subtopic_list)
+            ])
+
+    def _get_subtopic_list(self, indentation:str, current_dir:str) -> List[str]:
+        subtopic_list = []
+        for child in self.children:
+            subtopic_list.append('{}* [{}]({})'.format(indentation, child.caption, child.get_new_relative_link(current_dir)))
+            subtopic_list += child._get_subtopic_list(indentation+'  ', current_dir)
+        return subtopic_list
+
 
 class Tree():
 
@@ -197,9 +204,9 @@ class Tree():
     def _parse_old_lines(self):
         should_parse_toc = False
         for line_index, line in enumerate(self.old_lines):
-            if is_match_tag('startToc', line):
+            if is_match_start_tag('toc', line):
                 should_parse_toc = True
-            elif is_match_tag('endToc', line):
+            elif is_match_end_tag('toc', line):
                 should_parse_toc = False
             if not should_parse_toc:
                 continue
