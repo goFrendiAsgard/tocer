@@ -126,6 +126,22 @@ git clone git@github.com:state-alchemists/tocer.git ${HOME}/tocer
 
 # FAQ
 
-## I have run tocer.py. Can I update the TOC and re run tocer.py?
+## I have run tocer. Can I add some items to the TOC and re run it?
 
-Yes you can.
+Yes you can. `tocer` will turn your new items into links and create respective documents.
+
+## I modify existing item's position and caption and re run tocer. Is that okay?
+
+Yes it is okay. `tocer` will update all `title`, `breadcrumbs`, and `subtopics` to match your new structure.
+
+## Great job. Can I contribute?
+
+Sure you can do:
+
+* Create pull request
+* Open issue
+* [Donate](https://www.paypal.com/paypalme/gofrendi). Please let me know a few things if you donate:
+  * How do you find this project useful?
+  * Can I put your username/identity in this README file as contributor?
+  * Is there any feature you want?
+  * Leave me your email address, so that I can reply to you.
