@@ -50,7 +50,7 @@ cat pokemon/kanto/README.md
 
 <details>
 <summary>
-<b>Into Nested Documents</b>
+Into Nested Documents
 </summary>
 
 `````md
@@ -138,6 +138,13 @@ TODO: Write about `Kanto`
 
 # Try It Yourself
 
+[![asciicast](https://asciinema.org/a/QwoEhqDonbKj6eozg2qSgGyqr.svg)](https://asciinema.org/a/QwoEhqDonbKj6eozg2qSgGyqr)
+
+<details>
+<summary>
+Show the script
+</summary>
+
 ```bash
 echo "🐶 Preparing Demo"
 mkdir -p ~/testTocerPlayground
@@ -153,6 +160,7 @@ python ~/tocer/tocer.py
 echo "🐶 New README.md content:"
 cat README.md
 ```
+</details>
 
 # Why
 
