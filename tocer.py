@@ -13,11 +13,14 @@ def to_kebab(string: str) -> str:
     string = re.sub(r'(-+)', '-', string).lower()
     return string
 
+def to_capital(string: str) -> str:
+    return re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), string, 1)
+
 def create_start_tag(tag_name: str) -> str:
-    return '<!--start{}-->'.format(tag_name.capitalize())
+    return '<!--start{}-->'.format(to_capital(tag_name))
 
 def create_end_tag(tag_name: str) -> str:
-    return '<!--end{}-->'.format(tag_name.capitalize())
+    return '<!--end{}-->'.format(to_capital(tag_name))
 
 def is_match_start_tag(tag_name: str, line: str) -> bool:
     pattern = r'{}'.format(create_start_tag(tag_name))
@@ -171,8 +174,8 @@ class Node():
             '',
             'TODO: Write about `{}`'.format(self.caption),
             '',
-            create_start_tag('tocSubtopic'),
-            create_end_tag('tocSubtopic'),
+            create_start_tag('tocSubTopic'),
+            create_end_tag('tocSubTopic'),
         ])
         doc_file.write(doc_content)
 
@@ -181,7 +184,7 @@ class Node():
         old_doc_file = open(link, 'r')
         content = old_doc_file.read()
         content = replace_tag_content('tocHeader', self._get_header(), content)
-        content = replace_tag_content('tocSubtopic', self._get_subtopic(), content)
+        content = replace_tag_content('tocSubTopic', self._get_subtopic(), content)
         content = process_code_tag(content, self.preprocess_code_script)
         new_doc_file = open(link, 'w')
         new_doc_file.write(content)
