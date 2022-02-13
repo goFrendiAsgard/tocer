@@ -160,10 +160,10 @@ class Node():
 
     def adjust_doc(self):
         self._create_doc()
-        self._parse_doc()
         for child in self.children:
             child.adjust_doc()
- 
+        self._parse_doc()
+
     def _create_doc(self):
         new_link = self.get_new_link()
         dirname = os.path.dirname(new_link)

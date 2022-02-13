@@ -142,7 +142,6 @@ TODO: Write about `Kanto`
 echo "🐶 Preparing Demo"
 mkdir -p ~/testTocerPlayground
 cd ~/testTocerPlayground
-
 cp ~/tocer/sample-template.md README.md
 
 echo "🐶 Original README.md content:"
