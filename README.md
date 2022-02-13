@@ -1,139 +1,19 @@
 # Tocer
 
-Create nested documents based on item list.
+Every good software started with the proper testing scenario.
+A proper testing scenario is only possible if you have clear documented requirements.
 
-From this `README.md`:
+Do you want to write a better document?
+Do you have too many ideas and you don't even know where to start?
 
-````md
-# Legendary Gods
+You should start with TOC (Table of Content).
 
-These bullet list won't be rendered into TOC:
+Tocer is a good tool to help you scaffold the entire documentation based on a simple bullet list.
 
-* Sliffer The Sky Dragon
-* Obelisk The Tormentor
-* Winged Dragon of Ra
+After generating the documentation, you can still change your bullet items, add new ones, and re-generate.
 
-# Pokemons
-
-These bullet list will be rendered into TOC:
-
-<!--startToc-->
-* Pokemon
-   * Kanto
-     * Starter
-       * Bulbasaur
-       * Squirtle
-       * Charmender
-   * Johto
-* Digimon
-  * Agumon
-  * Gabumon
-<!--endToc-->
-
-
-# Code Example
-
-After running `python ~/tocer/tocer.py`, several sub-documents will be created:
-
-<!--startCode-->
-```bash
-echo "🐶 Show directory structure"
-tree
-
-echo "🐶 Content of pokemon/kanto/README.md"
-cat pokemon/kanto/README.md
-```
-<!--endCode-->
-
-> Note: Currently only support bash
-````
-
-<details>
-<summary>
-Into Nested Documents
-</summary>
-
-`````md
-# Legendary Gods
-
-These bullet list won't be rendered into TOC:
-
-* Sliffer The Sky Dragon
-* Obelisk The Tormentor
-* Winged Dragon of Ra
-
-# Pokemons
-
-These bullet list will be rendered into TOC:
-
-<!--startToc-->
-* [Pokemon](pokemon/README.md)
-   * [Kanto](pokemon/kanto/README.md)
-     * [Starter](pokemon/kanto/starter/README.md)
-       * [Bulbasaur](pokemon/kanto/starter/bulbasaur.md)
-       * [Squirtle](pokemon/kanto/starter/squirtle.md)
-       * [Charmender](pokemon/kanto/starter/charmender.md)
-   * [Johto](pokemon/johto.md)
-* [Digimon](digimon/README.md)
-  * [Agumon](digimon/agumon.md)
-  * [Gabumon](digimon/gabumon.md)
-<!--endToc-->
-
-
-# Code Example
-
-After running `python ~/tocer/tocer.py`, several sub-documents will be created:
-
-<!--startCode-->
-```bash
-echo "🐶 Show directory structure"
-tree
-
-echo "🐶 Content of pokemon/kanto/README.md"
-cat pokemon/kanto/README.md
-```
-
-````
-🐶 Show directory structure
-.
-├── README.md
-├── digimon
-│   ├── README.md
-│   ├── agumon.md
-│   └── gabumon.md
-└── pokemon
-    ├── README.md
-    ├── johto.md
-    └── kanto
-        ├── README.md
-        └── starter
-            ├── README.md
-            ├── bulbasaur.md
-            ├── charmender.md
-            └── squirtle.md
-
-4 directories, 11 files
-🐶 Content of pokemon/kanto/README.md
-<!--startTocheader-->
-[🏠](../../README.md) > [Pokemon](../README.md)
-# Kanto
-<!--endTocheader-->
-
-TODO: Write about `Kanto`
-
-<!--startTocsubtopic-->
-# Sub-topics
-* [Starter](starter/README.md)
-  * [Bulbasaur](starter/bulbasaur.md)
-  * [Squirtle](starter/squirtle.md)
-  * [Charmender](starter/charmender.md)
-<!--endTocsubtopic-->
-````
-<!--endCode-->
-
-> Note: Currently only support bash
-`````
-</details>
+Even better, you can also put some code snippets in your document.
+Tocer will check your code and show the output in the document.
 
 
 # Try It Yourself
@@ -161,10 +41,6 @@ echo "🐶 New README.md content:"
 cat README.md
 ```
 </details>
-
-# Why
-
-Because any good documentation started with a TOC (or at least I think so).
 
 # Prerequisites
 
