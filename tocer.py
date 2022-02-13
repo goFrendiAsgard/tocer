@@ -35,7 +35,7 @@ def replace_tag_content(tag_name: str, replacement_text: str, text: str) -> str:
     end_tag = create_end_tag(tag_name)
     replacements = [start_tag, replacement_text, end_tag] if replacement_text.strip() != '' else [start_tag, end_tag]
     return re.sub(
-        r'{start_tag}.*{end_tag}'.format(start_tag=start_tag, end_tag=end_tag), 
+        r'{start_tag}.*?{end_tag}'.format(start_tag=start_tag, end_tag=end_tag), 
         '\n'.join(replacements), 
         text,
         flags=re.DOTALL
@@ -44,19 +44,25 @@ def replace_tag_content(tag_name: str, replacement_text: str, text: str) -> str:
 def process_code_tag(text: str, preprocess_code_script: str) -> str:
     start_tag = create_start_tag('code')
     end_tag = create_end_tag('code')
-    code_delimiter='```'
     return re.sub(
-        r'({start_tag})\s*{code_delimiter}([a-zA-Z0-9_\-]*)\s(.*?)\s{code_delimiter}.*({end_tag})'.format(start_tag=start_tag, end_tag=end_tag, code_delimiter=code_delimiter), 
-        _create_replace_code_tag_match(preprocess_code_script),
+        r'{start_tag}(.*?){end_tag}'.format(start_tag=start_tag, end_tag=end_tag), 
+        # r'({start_tag})\s*{code_delimiter}([a-zA-Z0-9_\-]*)\s(.*?)\s{code_delimiter}.*({end_tag})'.format(start_tag=start_tag, end_tag=end_tag, code_delimiter=code_delimiter), 
+        _create_replace_code_tag_match(preprocess_code_script, start_tag, end_tag),
         text,
         flags=re.DOTALL
     )
 
-def _create_replace_code_tag_match(preprocess_code_script: str):
+def _create_replace_code_tag_match(preprocess_code_script: str, start_tag: str, end_tag: str):
     def _replace_code_tag_match(match_obj: Any) -> str:
         code_delimiter='```'
         output_delimiter='````'
-        start_tag, code_type, code, end_tag = match_obj.groups()
+        content = match_obj.groups()[0]
+        content_matches = re.match(
+            r'.*?{code_delimiter}([a-zA-Z0-9_\-]*?)\s(.*?)\s{code_delimiter}.*'.format(code_delimiter=code_delimiter),
+            content,
+            flags=re.DOTALL
+        )
+        code_type, code = content_matches.groups()
         script = '\n'.join([preprocess_code_script, code])
         output = subprocess.check_output(['bash', '-c', script]).decode('utf-8')
         return '\n'.join([
@@ -66,7 +72,7 @@ def _create_replace_code_tag_match(preprocess_code_script: str):
             code_delimiter.strip(),
             '',
             output_delimiter.strip(),
-            output,
+            output.strip(),
             output_delimiter.strip(),
             end_tag
         ])
@@ -174,8 +180,8 @@ class Node():
             '',
             'TODO: Write about `{}`'.format(self.caption),
             '',
-            create_start_tag('tocSubTopic'),
-            create_end_tag('tocSubTopic'),
+            create_start_tag('TocSubTopic'),
+            create_end_tag('TocSubTopic'),
         ])
         doc_file.write(doc_content)
 
@@ -184,7 +190,7 @@ class Node():
         old_doc_file = open(link, 'r')
         content = old_doc_file.read()
         content = replace_tag_content('tocHeader', self._get_header(), content)
-        content = replace_tag_content('tocSubTopic', self._get_subtopic(), content)
+        content = replace_tag_content('TocSubTopic', self._get_subtopic(), content)
         content = process_code_tag(content, self.preprocess_code_script)
         new_doc_file = open(link, 'w')
         new_doc_file.write(content)

@@ -67,6 +67,18 @@ I don't know dude. Seriously, I don't know. Here is a [link](https://home.cern/s
 
 # Code sample
 
+
+<!--startCode-->
+```bash
+ls -al
+```
+
+```
+anu anu
+```
+<!--endCode-->
+
+
 <!--startCode-->
 ```bash
 tree
