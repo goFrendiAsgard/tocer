@@ -258,7 +258,7 @@ class Tree():
         new_lines = list(self.old_lines)
         return self.root.replace_lines(new_lines)
 
-    def create_doc(self):
+    def adjust_doc(self):
         self.root.adjust_doc()
 
 
@@ -267,7 +267,7 @@ def main(toc_file_name: str):
     old_lines = old_readme_file.read().split('\n')
     tree = Tree(toc_file_name, old_lines)
     new_lines = tree.replace_lines()
-    tree.create_doc()
+    tree.adjust_doc()
     new_content = process_code_tag('\n'.join(new_lines))
     new_readme_file = open(toc_file_name, 'w')
     new_readme_file.write(new_content)
