@@ -68,7 +68,7 @@ To see the directory structure, do:
 tree
 ```
 
-```
+````
 .
 ├── README.md
 ├── digimon
@@ -88,7 +88,7 @@ tree
 
 4 directories, 11 files
 
-```
+````
 <!--endCode-->
 
 > Note: Currently only support bash
