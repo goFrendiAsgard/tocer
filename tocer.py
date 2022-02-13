@@ -30,7 +30,7 @@ def is_match_end_tag(tag_name: str, line: str) -> bool:
 def replace_tag_content(tag_name: str, replacement_text: str, text: str) -> str:
     start_tag = create_start_tag(tag_name)
     end_tag = create_end_tag(tag_name)
-    replacements = [start_tag, replacement_text, end_tag] if replacement_text != '' else [start_tag, end_tag]
+    replacements = [start_tag, replacement_text, end_tag] if replacement_text.strip() != '' else [start_tag, end_tag]
     return re.sub(
         r'{start_tag}.*{end_tag}'.format(start_tag=start_tag, end_tag=end_tag), 
         '\n'.join(replacements), 
@@ -280,5 +280,5 @@ def main(toc_file_name: str, preprocess_code_script: str):
 
 if __name__ == '__main__':
     toc_file_name = sys.argv[1] if len(sys.argv) > 1 else 'README.md'
-    preprocess_code_script = sys.argv[2] if len(sys.argv) > 2 else 'source ~/.bashrc'
+    preprocess_code_script = sys.argv[2] if len(sys.argv) > 2 else 'if [ -f "~/.bashrc" ]; then source ~/.bashrc; fi'
     main(toc_file_name, preprocess_code_script)
