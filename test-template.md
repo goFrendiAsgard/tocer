@@ -65,3 +65,10 @@ I don't know dude. Seriously, I don't know. Here is a [link](https://home.cern/s
 * c
 <!--endToc-->
 
+# Code sample
+
+<!--startCode-->
+```bash
+tree
+```
+<!--endCode-->

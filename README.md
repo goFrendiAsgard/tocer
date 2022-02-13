@@ -4,16 +4,15 @@ Create nested documents based on item list.
 
 From this `README.md`:
 
-```bash
-mkdir testDir
-cd testDir
+````md
+# Legendary Gods
 
-# Create a README.md
-cat <<EOF > README.md
-# Non TOC
-* First item
-* Second item
-# TOC
+* Sliffer The Sky Dragon
+* Obelisk The Tormentor
+* Winged Dragon of Ra
+
+# Pokemons
+
 <!--startToc-->
 * Pokemon
    * Kanto
@@ -22,20 +21,60 @@ cat <<EOF > README.md
        * Squirtle
        * Charmender
    * Johto
+* Digimon
+  * Agumon
+  * Gabumon
 <!--endToc-->
-EOF
 
-# Run tocer.py
-python ~/tocer/tocer.py
+To see the directory structure, do:
+
+<!--startCode-->
+```bash
+tree
+```
+<!--endCode-->
+
+> Note: Currently only support bash
+````
+
+Into this:
+
+````md
+# Legendary Gods
+
+* Sliffer The Sky Dragon
+* Obelisk The Tormentor
+* Winged Dragon of Ra
+
+# Pokemons
+
+<!--startToc-->
+* [Pokemon](pokemon/README.md)
+   * [Kanto](pokemon/kanto/README.md)
+     * [Starter](pokemon/kanto/starter/README.md)
+       * [Bulbasaur](pokemon/kanto/starter/bulbasaur.md)
+       * [Squirtle](pokemon/kanto/starter/squirtle.md)
+       * [Charmender](pokemon/kanto/starter/charmender.md)
+   * [Johto](pokemon/johto.md)
+* [Digimon](digimon/README.md)
+  * [Agumon](digimon/agumon.md)
+  * [Gabumon](digimon/gabumon.md)
+<!--endToc-->
+
+To see the directory structure, do:
+
+<!--startCode-->
+```bash
+tree
 ```
 
-Into this directory structure:
-
 ```
-# Get directory structure
-❯ tree
 .
 ├── README.md
+├── digimon
+│   ├── README.md
+│   ├── agumon.md
+│   └── gabumon.md
 └── pokemon
     ├── README.md
     ├── johto.md
@@ -47,53 +86,33 @@ Into this directory structure:
             ├── charmender.md
             └── squirtle.md
 
-3 directories, 8 files
-```
-
-<details>
-<summary>
-with new <code>README.md</code>:
-</summary>
+4 directories, 11 files
 
 ```
-❯ cat README.md
-# Non TOC
-* First item
-* Second item
-# TOC
-<!--startToc-->
-* [Pokemon](pokemon/README.md)
-   * [Kanto](pokemon/kanto/README.md)
-     * [Starter](pokemon/kanto/starter/README.md)
-       * [Bulbasaur](pokemon/kanto/starter/bulbasaur.md)
-       * [Squirtle](pokemon/kanto/starter/squirtle.md)
-       * [Charmender](pokemon/kanto/starter/charmender.md)
-   * [Johto](pokemon/johto.md)
-<!--endToc-->
-```
-</details>
+<!--endCode-->
 
-<details>
-<summary>
-and respective sub documents:
-</summary>
+> Note: Currently only support bash
 
-```
-❯ cat pokemon/kanto/starter/README.md
-<!--startTocHeader-->
-[🏠](../../../README.md) > [Pokemon](../../README.md) > [Kanto](../README.md)
-# Starter
-<!--endTocHeader-->
-TODO: Write about `Starter`
-<!--startTocSubtopic-->
-# Sub-topics
-* [Bulbasaur](bulbasaur.md)
-* [Squirtle](squirtle.md)
-* [Charmender](charmender.md)
-<!--endTocSubtopic-->
-```
-</details>
+````
 
+# Demo
+
+```bash
+echo "🐶 Preparing Demo"
+mkdir -p ~/testTocerPlayground
+cd ~/testTocerPlayground
+
+cp ~/tocer/sample-template.md README.md
+
+echo "🐶 Original README.md content:"
+cat README.md
+
+echo "🐶 Running Tocer"
+python ~/tocer/tocer.py
+
+echo "🐶 New README.md content:"
+cat README.md
+```
 
 # Why
 

@@ -1,7 +1,8 @@
 from turtle import back
-from typing import List, Optional, TypeVar
+from typing import Any, List, Optional, TypeVar
 import re
 import os
+import subprocess
 import sys
 
 
@@ -12,33 +13,58 @@ def to_kebab(string: str) -> str:
     string = re.sub(r'(-+)', '-', string).lower()
     return string
 
-def get_start_tag(tag_name: str) -> str:
+def create_start_tag(tag_name: str) -> str:
     return '<!--start{}-->'.format(tag_name.capitalize())
 
-def get_end_tag(tag_name: str) -> str:
+def create_end_tag(tag_name: str) -> str:
     return '<!--end{}-->'.format(tag_name.capitalize())
 
 def is_match_start_tag(tag_name: str, line: str) -> bool:
-    pattern = r'{}'.format(get_start_tag(tag_name))
+    pattern = r'{}'.format(create_start_tag(tag_name))
     return re.match(pattern, line) is not None
 
 def is_match_end_tag(tag_name: str, line: str) -> bool:
-    pattern = r'{}'.format(get_end_tag(tag_name))
+    pattern = r'{}'.format(create_end_tag(tag_name))
     return re.match(pattern, line) is not None
 
-def replace_tag_content(tag_name: str, replacement: str, text: str) -> str:
-    start_tag = get_start_tag(tag_name)
-    end_tag = get_end_tag(tag_name)
+def replace_tag_content(tag_name: str, replacement_text: str, text: str) -> str:
+    start_tag = create_start_tag(tag_name)
+    end_tag = create_end_tag(tag_name)
+    replacements = [start_tag, replacement_text, end_tag] if replacement_text != '' else [start_tag, end_tag]
     return re.sub(
-        r'{}.*{}'.format(start_tag, end_tag), 
-        '\n'.join([
-            start_tag,
-            replacement,
-            end_tag,
-        ]), 
+        r'{start_tag}.*{end_tag}'.format(start_tag=start_tag, end_tag=end_tag), 
+        '\n'.join(replacements), 
         text,
         flags=re.DOTALL
     )
+
+def process_code_tag(text: str) -> str:
+    start_tag = create_start_tag('code')
+    end_tag = create_end_tag('code')
+    code_delimiter='```'
+    return re.sub(
+        r'({start_tag})\s*{code_delimiter}([a-zA-Z0-9_\-]*)\s(.*)\s{code_delimiter}.*({end_tag})'.format(start_tag=start_tag, end_tag=end_tag, code_delimiter=code_delimiter), 
+        _replace_code_tag_match,
+        text,
+        flags=re.DOTALL
+    )
+
+def _replace_code_tag_match(match_obj: Any) -> str:
+    code_delimiter='```'
+    start_tag, code_type, code, end_tag = match_obj.groups()
+    output = subprocess.check_output(['bash', '-c', code]).decode('utf-8')
+    return '\n'.join([
+        start_tag,
+        '{}{}'.format(code_delimiter, code_type).strip(),
+        code.strip(),
+        code_delimiter,
+        '',
+        code_delimiter,
+        output,
+        code_delimiter,
+        end_tag
+    ])
+
 
 TNode = TypeVar('TNode', bound='Node')
 class Node():
@@ -135,14 +161,15 @@ class Node():
             return
         doc_file = open(new_link, 'w')
         doc_content = '\n'.join([
-            get_start_tag('tocHeader'),
-            get_end_tag('tocHeader'),
+            create_start_tag('tocHeader'),
+            create_end_tag('tocHeader'),
             '',
             'TODO: Write about `{}`'.format(self.caption),
             '',
-            get_start_tag('tocSubtopic'),
-            get_end_tag('tocSubtopic'),
+            create_start_tag('tocSubtopic'),
+            create_end_tag('tocSubtopic'),
         ])
+        doc_content = process_code_tag(doc_content)
         doc_file.write(doc_content)
 
     def _parse_doc(self):
@@ -241,8 +268,9 @@ def main(toc_file_name: str):
     tree = Tree(toc_file_name, old_lines)
     new_lines = tree.replace_lines()
     tree.create_doc()
+    new_content = process_code_tag('\n'.join(new_lines))
     new_readme_file = open(toc_file_name, 'w')
-    new_readme_file.write('\n'.join(new_lines))
+    new_readme_file.write(new_content)
 
 if __name__ == '__main__':
     toc_file_name = sys.argv[1] if len(sys.argv) > 1 else 'README.md'
