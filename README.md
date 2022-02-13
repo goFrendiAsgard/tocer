@@ -7,11 +7,15 @@ From this `README.md`:
 ````md
 # Legendary Gods
 
+These bullet list won't be rendered into TOC:
+
 * Sliffer The Sky Dragon
 * Obelisk The Tormentor
 * Winged Dragon of Ra
 
 # Pokemons
+
+These bullet list will be rendered into TOC:
 
 <!--startToc-->
 * Pokemon
@@ -26,27 +30,41 @@ From this `README.md`:
   * Gabumon
 <!--endToc-->
 
-To see the directory structure, do:
+
+# Code Example
+
+After running `python ~/tocer/tocer.py`, several sub-documents will be created:
 
 <!--startCode-->
 ```bash
+echo "🐶 Show directory structure"
 tree
+
+echo "🐶 Content of pokemon/kanto/README.md"
+cat pokemon/kanto/README.md
 ```
 <!--endCode-->
 
 > Note: Currently only support bash
 ````
 
-Into this:
+<details>
+<summary>
+<b>Into Nested Documents</b>
+</summary>
 
-````md
+`````md
 # Legendary Gods
+
+These bullet list won't be rendered into TOC:
 
 * Sliffer The Sky Dragon
 * Obelisk The Tormentor
 * Winged Dragon of Ra
 
 # Pokemons
+
+These bullet list will be rendered into TOC:
 
 <!--startToc-->
 * [Pokemon](pokemon/README.md)
@@ -61,14 +79,22 @@ Into this:
   * [Gabumon](digimon/gabumon.md)
 <!--endToc-->
 
-To see the directory structure, do:
+
+# Code Example
+
+After running `python ~/tocer/tocer.py`, several sub-documents will be created:
 
 <!--startCode-->
 ```bash
+echo "🐶 Show directory structure"
 tree
+
+echo "🐶 Content of pokemon/kanto/README.md"
+cat pokemon/kanto/README.md
 ```
 
 ````
+🐶 Show directory structure
 .
 ├── README.md
 ├── digimon
@@ -87,15 +113,30 @@ tree
             └── squirtle.md
 
 4 directories, 11 files
+🐶 Content of pokemon/kanto/README.md
+<!--startTocheader-->
+[🏠](../../README.md) > [Pokemon](../README.md)
+# Kanto
+<!--endTocheader-->
 
+TODO: Write about `Kanto`
+
+<!--startTocsubtopic-->
+# Sub-topics
+* [Starter](starter/README.md)
+  * [Bulbasaur](starter/bulbasaur.md)
+  * [Squirtle](starter/squirtle.md)
+  * [Charmender](starter/charmender.md)
+<!--endTocsubtopic-->
 ````
 <!--endCode-->
 
 > Note: Currently only support bash
+`````
+</details>
 
-````
 
-# Demo
+# Try It Yourself
 
 ```bash
 echo "🐶 Preparing Demo"
