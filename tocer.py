@@ -38,43 +38,48 @@ def replace_tag_content(tag_name: str, replacement_text: str, text: str) -> str:
         flags=re.DOTALL
     )
 
-def process_code_tag(text: str) -> str:
+def process_code_tag(text: str, preprocess_code_script: str) -> str:
     start_tag = create_start_tag('code')
     end_tag = create_end_tag('code')
     code_delimiter='```'
     return re.sub(
-        r'({start_tag})\s*{code_delimiter}([a-zA-Z0-9_\-]*)\s(.*)\s{code_delimiter}.*({end_tag})'.format(start_tag=start_tag, end_tag=end_tag, code_delimiter=code_delimiter), 
-        _replace_code_tag_match,
+        r'({start_tag})\s*{code_delimiter}([a-zA-Z0-9_\-]*)\s(.*?)\s{code_delimiter}.*({end_tag})'.format(start_tag=start_tag, end_tag=end_tag, code_delimiter=code_delimiter), 
+        _create_replace_code_tag_match(preprocess_code_script),
         text,
         flags=re.DOTALL
     )
 
-def _replace_code_tag_match(match_obj: Any) -> str:
-    code_delimiter='```'
-    start_tag, code_type, code, end_tag = match_obj.groups()
-    output = subprocess.check_output(['bash', '-c', code]).decode('utf-8')
-    return '\n'.join([
-        start_tag,
-        '{}{}'.format(code_delimiter, code_type).strip(),
-        code.strip(),
-        code_delimiter,
-        '',
-        code_delimiter,
-        output,
-        code_delimiter,
-        end_tag
-    ])
+def _create_replace_code_tag_match(preprocess_code_script: str):
+    def _replace_code_tag_match(match_obj: Any) -> str:
+        code_delimiter='```'
+        output_delimiter='````'
+        start_tag, code_type, code, end_tag = match_obj.groups()
+        script = '\n'.join([preprocess_code_script, code])
+        output = subprocess.check_output(['bash', '-c', script]).decode('utf-8')
+        return '\n'.join([
+            start_tag,
+            '{}{}'.format(code_delimiter, code_type).strip(),
+            code.strip(),
+            code_delimiter.strip(),
+            '',
+            output_delimiter.strip(),
+            output,
+            output_delimiter.strip(),
+            end_tag
+        ])
+    return _replace_code_tag_match 
 
 
 TNode = TypeVar('TNode', bound='Node')
 class Node():
 
-    def __init__(self, line_index: int, line: str, toc_file_name: str):
+    def __init__(self, line_index: int, line: str, toc_file_name: str, preprocess_code_script: str):
         self.parent: Optional[Node] = None
         self.children: List[Node] = []
         self.line_index = line_index
         self.line = line
         self.toc_file_name = toc_file_name
+        self.preprocess_code_script = preprocess_code_script
         self.indentation = ''
         self.caption = '🏠'
         self.old_link = ''
@@ -177,7 +182,7 @@ class Node():
         content = old_doc_file.read()
         content = replace_tag_content('tocHeader', self._get_header(), content)
         content = replace_tag_content('tocSubtopic', self._get_subtopic(), content)
-        content = process_code_tag(content)
+        content = process_code_tag(content, self.preprocess_code_script)
         new_doc_file = open(link, 'w')
         new_doc_file.write(content)
 
@@ -223,11 +228,12 @@ class Node():
 
 class Tree():
 
-    def __init__(self, toc_file_name: str, old_lines: List[str]):
+    def __init__(self, toc_file_name: str, old_lines: List[str], preprocess_code_script: str):
         self.toc_file_name = toc_file_name
-        self.root = Node(-1, '', toc_file_name)
+        self.root = Node(-1, '', toc_file_name, preprocess_code_script)
         self.current = self.root
         self.old_lines = old_lines
+        self.preprocess_code_script = preprocess_code_script
         self._parse_old_lines()
 
     def _parse_old_lines(self):
@@ -239,7 +245,7 @@ class Tree():
                 should_parse_toc = False
             if not should_parse_toc:
                 continue
-            new_node = Node(line_index, line, self.toc_file_name)
+            new_node = Node(line_index, line, self.toc_file_name, self.preprocess_code_script)
             if not new_node.is_item():
                 continue
             if self.current.is_root():
@@ -262,16 +268,17 @@ class Tree():
         self.root.adjust_doc()
 
 
-def main(toc_file_name: str):
+def main(toc_file_name: str, preprocess_code_script: str):
     old_readme_file = open(toc_file_name, 'r')
     old_lines = old_readme_file.read().split('\n')
-    tree = Tree(toc_file_name, old_lines)
+    tree = Tree(toc_file_name, old_lines, preprocess_code_script)
     new_lines = tree.replace_lines()
     tree.adjust_doc()
-    new_content = process_code_tag('\n'.join(new_lines))
+    new_content = process_code_tag('\n'.join(new_lines), preprocess_code_script)
     new_readme_file = open(toc_file_name, 'w')
     new_readme_file.write(new_content)
 
 if __name__ == '__main__':
     toc_file_name = sys.argv[1] if len(sys.argv) > 1 else 'README.md'
-    main(toc_file_name)
+    preprocess_code_script = sys.argv[2] if len(sys.argv) > 2 else 'source ~/.bashrc'
+    main(toc_file_name, preprocess_code_script)
