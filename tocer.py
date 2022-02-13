@@ -13,14 +13,14 @@ def to_kebab(string: str) -> str:
     string = re.sub(r'(-+)', '-', string).lower()
     return string
 
-def to_capital(string: str) -> str:
+def to_capital_first_letter(string: str) -> str:
     return re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), string, 1)
 
 def create_start_tag(tag_name: str) -> str:
-    return '<!--start{}-->'.format(to_capital(tag_name))
+    return '<!--start{}-->'.format(to_capital_first_letter(tag_name))
 
 def create_end_tag(tag_name: str) -> str:
-    return '<!--end{}-->'.format(to_capital(tag_name))
+    return '<!--end{}-->'.format(to_capital_first_letter(tag_name))
 
 def is_match_start_tag(tag_name: str, line: str) -> bool:
     pattern = r'{}'.format(create_start_tag(tag_name))
