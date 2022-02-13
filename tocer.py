@@ -169,7 +169,6 @@ class Node():
             create_start_tag('tocSubtopic'),
             create_end_tag('tocSubtopic'),
         ])
-        doc_content = process_code_tag(doc_content)
         doc_file.write(doc_content)
 
     def _parse_doc(self):
@@ -178,6 +177,7 @@ class Node():
         content = old_doc_file.read()
         content = replace_tag_content('tocHeader', self._get_header(), content)
         content = replace_tag_content('tocSubtopic', self._get_subtopic(), content)
+        content = process_code_tag(content)
         new_doc_file = open(link, 'w')
         new_doc_file.write(content)
 
