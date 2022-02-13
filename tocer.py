@@ -137,7 +137,9 @@ class Node():
         doc_content = '\n'.join([
             get_start_tag('tocHeader'),
             get_end_tag('tocHeader'),
+            '',
             'TODO: Write about `{}`'.format(self.caption),
+            '',
             get_start_tag('tocSubtopic'),
             get_end_tag('tocSubtopic'),
         ])
