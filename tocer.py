@@ -55,7 +55,7 @@ def process_code_tag(text: str, preprocess_code_script: str) -> str:
 def _create_replace_code_tag_match(preprocess_code_script: str, start_tag: str, end_tag: str):
     def _replace_code_tag_match(match_obj: Any) -> str:
         code_delimiter='```'
-        output_delimiter='````'
+        output_delimiter='```````'
         content = match_obj.groups()[0]
         content_matches = re.match(
             r'.*?{code_delimiter}([a-zA-Z0-9_\-]*?)\s(.*?)\s{code_delimiter}.*'.format(code_delimiter=code_delimiter),
@@ -71,9 +71,13 @@ def _create_replace_code_tag_match(preprocess_code_script: str, start_tag: str, 
             code.strip(),
             code_delimiter.strip(),
             '',
+            '<details>',
+            '<summary>Output</summary>',
+            '',
             output_delimiter.strip(),
             output.strip(),
             output_delimiter.strip(),
+            '</details>',
             end_tag
         ])
     return _replace_code_tag_match 
@@ -289,5 +293,5 @@ def main(toc_file_name: str, preprocess_code_script: str):
 
 if __name__ == '__main__':
     toc_file_name = sys.argv[1] if len(sys.argv) > 1 else 'README.md'
-    preprocess_code_script = sys.argv[2] if len(sys.argv) > 2 else 'if [ -f "~/.bashrc" ]; then source ~/.bashrc; fi'
+    preprocess_code_script = sys.argv[2] if len(sys.argv) > 2 else 'if [ -f "~/.bashrc" ]; then source "~/.bashrc"; fi;'
     main(toc_file_name, preprocess_code_script)
