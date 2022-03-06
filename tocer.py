@@ -46,7 +46,6 @@ def process_code_tag(text: str, preprocess_code_script: str) -> str:
     end_tag = create_end_tag('code')
     return re.sub(
         r'{start_tag}(.*?){end_tag}'.format(start_tag=start_tag, end_tag=end_tag), 
-        # r'({start_tag})\s*{code_delimiter}([a-zA-Z0-9_\-]*)\s(.*?)\s{code_delimiter}.*({end_tag})'.format(start_tag=start_tag, end_tag=end_tag, code_delimiter=code_delimiter), 
         _create_replace_code_tag_match(preprocess_code_script, start_tag, end_tag),
         text,
         flags=re.DOTALL
@@ -70,10 +69,10 @@ def _create_replace_code_tag_match(preprocess_code_script: str, start_tag: str, 
             '{}{}'.format(code_delimiter, code_type).strip(),
             code.strip(),
             code_delimiter.strip(),
-            '',
+            ' ',
             '<details>',
             '<summary>Output</summary>',
-            '',
+            ' ',
             output_delimiter.strip(),
             output.strip(),
             output_delimiter.strip(),
