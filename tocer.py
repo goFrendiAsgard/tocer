@@ -63,7 +63,7 @@ def _create_replace_code_tag_match(preprocess_code_script: str, start_tag: str, 
         )
         code_type, code = content_matches.groups()
         script = '\n'.join([preprocess_code_script, code])
-        output = subprocess.check_output(['bash', '-c', script]).decode('utf-8')
+        output = subprocess.check_output(['bash', '-c', script], stderr=subprocess.STDOUT).decode('utf-8')
         return '\n'.join([
             start_tag,
             '{}{}'.format(code_delimiter, code_type).strip(),
