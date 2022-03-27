@@ -162,7 +162,7 @@ class Node():
         return lines 
 
     def adjust_doc(self):
-        print('Parse {link}'.format(link=self.get_new_Link()))
+        print('Parse {link}'.format(link=self.get_new_link()))
         self._create_doc()
         for child in self.children:
             child.adjust_doc()
