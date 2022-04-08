@@ -166,12 +166,14 @@ class Node():
         return lines 
 
     def adjust_doc(self):
-        print('Parsing {link}'.format(link=self.get_new_link()))
+        print('Creating {link}'.format(link=self.get_new_link()))
         self._create_doc()
+        print('Done creating {link}'.format(link=self.get_new_link()))
         for child in self.children:
             child.adjust_doc()
+        print('Parsing {link}'.format(link=self.get_new_link()))
         self._parse_doc()
-        print('Done Parsing {link}'.format(link=self.get_new_link()))
+        print('Done parsing {link}'.format(link=self.get_new_link()))
 
     def _create_doc(self):
         new_link = self.get_new_link()
