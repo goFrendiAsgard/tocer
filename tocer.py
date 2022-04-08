@@ -31,7 +31,7 @@ def is_match_end_tag(tag_name: str, line: str) -> bool:
     return re.match(pattern, line) is not None
 
 def remove_terminal_decorations(text: str) -> str:
-    result = re.sub(r"\x1b\[[0-9]+[a-zA-Z]", "", text)
+    result = re.sub(r"\x1b\[[\?*[0-9]+[a-zA-Z]", "", text)
     return result
 
 def replace_tag_content(tag_name: str, replacement_text: str, text: str) -> str:
