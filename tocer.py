@@ -30,6 +30,10 @@ def is_match_end_tag(tag_name: str, line: str) -> bool:
     pattern = r'{}'.format(create_end_tag(tag_name))
     return re.match(pattern, line) is not None
 
+def remove_terminal_decorations(text: str) -> str:
+    result = re.sub(r"\x1b\[[0-9]+m", "", text)
+    return result
+
 def replace_tag_content(tag_name: str, replacement_text: str, text: str) -> str:
     start_tag = create_start_tag(tag_name)
     end_tag = create_end_tag(tag_name)
@@ -63,7 +67,7 @@ def _create_replace_code_tag_match(preprocess_code_script: str, start_tag: str, 
         )
         code_type, code = content_matches.groups()
         script = '\n'.join([preprocess_code_script, code])
-        output = subprocess.check_output(['bash', '-c', script], stderr=subprocess.STDOUT).decode('utf-8')
+        output = remove_terminal_decorations(subprocess.check_output(['bash', '-c', script], stderr=subprocess.STDOUT).decode('utf-8'))
         return '\n'.join([
             start_tag,
             '{}{}'.format(code_delimiter, code_type).strip(),
