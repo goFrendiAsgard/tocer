@@ -67,6 +67,7 @@ def _create_replace_code_tag_match(preprocess_code_script: str, start_tag: str, 
         )
         code_type, code = content_matches.groups()
         script = '\n'.join([preprocess_code_script, code])
+        print('Processing code: {code_script}'.format(script=script))
         output = remove_terminal_decorations(subprocess.check_output(['bash', '-c', script], stderr=subprocess.STDOUT).decode('utf-8'))
         return '\n'.join([
             start_tag,
@@ -166,9 +167,7 @@ class Node():
         return lines 
 
     def adjust_doc(self):
-        print('Creating {link}'.format(link=self.get_new_link()))
         self._create_doc()
-        print('Done creating {link}'.format(link=self.get_new_link()))
         for child in self.children:
             child.adjust_doc()
         print('Parsing {link}'.format(link=self.get_new_link()))
@@ -179,11 +178,14 @@ class Node():
         new_link = self.get_new_link()
         dirname = os.path.dirname(new_link)
         if dirname != '' and not os.path.exists(dirname):
+            print('Making directory {dirname}'.format(dirname=dirname))
             os.makedirs(dirname)
         if self.old_link != new_link and os.path.exists(self.old_link):
+            print('Renaming {old_link} to {new_link}'.format(old_link=self.old_link, new_link=new_link))
             os.rename(self.old_link, new_link)
         if os.path.exists(new_link):
             return
+        print('Creating {link}'.format(link=self.get_new_link()))
         doc_file = open(new_link, 'w')
         doc_content = '\n'.join([
             create_start_tag('tocHeader'),
@@ -195,14 +197,19 @@ class Node():
             create_end_tag('TocSubTopic'),
         ])
         doc_file.write(doc_content)
+        print('Done creating {link}'.format(link=self.get_new_link()))
 
     def _parse_doc(self):
         link = self.get_new_link()
         old_doc_file = open(link, 'r')
         content = old_doc_file.read()
+        print('Processing TOC header tag')
         content = replace_tag_content('tocHeader', self._get_header(), content)
+        print('Processing TOC subtopic tag')
         content = replace_tag_content('TocSubTopic', self._get_subtopic(), content)
+        print('Processing code tag')
         content = process_code_tag(content, self.preprocess_code_script)
+        print('Done processing code tag')
         new_doc_file = open(link, 'w')
         new_doc_file.write(content)
 
