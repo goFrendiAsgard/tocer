@@ -69,6 +69,7 @@ def _create_replace_code_tag_match(preprocess_code_script: str, start_tag: str, 
         script = '\n'.join([preprocess_code_script, code])
         print('Processing code: {script}'.format(script=script))
         output = remove_terminal_decorations(subprocess.check_output(['bash', '-c', script], stderr=subprocess.STDOUT).decode('utf-8'))
+        print('Getting output: {output}'.format(output=output))
         return '\n'.join([
             start_tag,
             '{}{}'.format(code_delimiter, code_type).strip(),
