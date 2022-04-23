@@ -1,3 +1,4 @@
+# coding=utf8
 from turtle import back
 from typing import Any, List, Optional, TypeVar
 import re
@@ -31,7 +32,10 @@ def is_match_end_tag(tag_name: str, line: str) -> bool:
     return re.match(pattern, line) is not None
 
 def remove_terminal_decorations(text: str) -> str:
-    result = re.sub(r"\x1b\[[\?*[0-9]+[a-zA-Z]", "", text)
+    # https://www2.ccs.neu.edu/research/gpc/VonaUtils/vona/terminal/vtansi.htm
+    result = re.sub(r".*[\n\r]\x1b\[1A*", "", text, flags=re.MULTILINE)
+    result = re.sub(r".*\x1b\[2K[\r\n]", "", result, flags=re.MULTILINE)
+    result = re.sub(r"\x1b\[[\?*[0-9]+[a-zA-Z]", "", result)
     return result
 
 def replace_tag_content(tag_name: str, replacement_text: str, text: str) -> str:
@@ -68,7 +72,8 @@ def _create_replace_code_tag_match(preprocess_code_script: str, start_tag: str, 
         code_type, code = content_matches.groups()
         script = '\n'.join([preprocess_code_script, code])
         print('Processing code: {script}'.format(script=script))
-        output = remove_terminal_decorations(subprocess.check_output(['bash', '-c', script], stderr=subprocess.STDOUT).decode('utf-8'))
+        raw_output = subprocess.check_output(['bash', '-c', script], stderr=subprocess.STDOUT).decode('utf-8')
+        output = remove_terminal_decorations(raw_output)
         print('Getting output: {output}'.format(output=output))
         return '\n'.join([
             start_tag,
