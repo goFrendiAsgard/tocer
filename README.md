@@ -1,4 +1,4 @@
-# Tocer
+# 📋 Tocer
 
 Every good software started with the proper testing scenario.
 A proper testing scenario is only possible if you have documented requirements.
@@ -16,7 +16,7 @@ Even better, you can also put some code snippets in your document.
 Tocer will evaluate your code and show the output in the document.
 
 
-# Try It Yourself
+# 🔍 Try it Yourself
 
 [![asciicast](https://asciinema.org/a/QwoEhqDonbKj6eozg2qSgGyqr.svg)](https://asciinema.org/a/QwoEhqDonbKj6eozg2qSgGyqr)
 
@@ -42,31 +42,29 @@ cat README.md
 ```
 </details>
 
-# Prerequisites
+# 🧅 Prerequisites
 
 * Python
 
-# How to install
+# 👨‍💻 Installation
 
 ```bash
 git clone git@github.com:state-alchemists/tocer.git ${HOME}/tocer
 ```
 
-# How to use
+# 📖 How to Use
 
 * Create a TOC file (e.g: `README.md`) containing nested bullets flanked by two HTML tags: `<!--startToc>` and `<!--endToc>`
 * Run `python tocer.py <toc-file>` (e.g: `python tocer.py README.md`).
 
-# Expected result
+# 🎉 Expected result
 
-* Every bullet item between `<!--startToc>` and `<!--endToc>` in your TOC file will be turned into link, unless it already is.
-* If the documents referred by the links does not exist, they will be created.
+* Every bullet item between `<!--startToc>` and `<!--endToc>` in your TOC file will be turned into a link, unless it already is.
+* If the documents referred by the links do not exist, they will be created.
 
-# Testing
+# ☑️ Testing
 
 * Run `test.sh`
-
-# Donation
 
 # ☕ Donation
 
@@ -75,7 +73,7 @@ Help Red Skull to click the donation button:
 [![](arts/donator.png)](https://stalchmst.com/donation.html)
 
 
-# FAQ
+# ❓ FAQ
 
 ## I have run tocer. Can I add some items to the TOC and re-run it?
 
