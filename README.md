@@ -1,7 +1,7 @@
 # Tocer
 
 Every good software started with the proper testing scenario.
-A proper testing scenario is only possible if you have clear documented requirements.
+A proper testing scenario is only possible if you have documented requirements.
 
 Do you want to write a better document?
 Do you have too many ideas and you don't even know where to start?
@@ -10,10 +10,10 @@ You should start with TOC (Table of Content).
 
 Tocer is a good tool to help you scaffold the entire documentation based on a simple bullet list.
 
-After generating the documentation, you can still change your bullet items, add new ones, and re-generate.
+Feel free to change your bullet items, add new ones, and re-generate.
 
 Even better, you can also put some code snippets in your document.
-Tocer will check your code and show the output in the document.
+Tocer will evaluate your code and show the output in the document.
 
 
 # Try It Yourself
@@ -45,7 +45,6 @@ cat README.md
 # Prerequisites
 
 * Python
-* just that, nothing else
 
 # How to install
 
@@ -61,21 +60,30 @@ git clone git@github.com:state-alchemists/tocer.git ${HOME}/tocer
 # Expected result
 
 * Every bullet item between `<!--startToc>` and `<!--endToc>` in your TOC file will be turned into link, unless it already is.
-* If the documents refered by the links are not exist, they will be created.
+* If the documents referred by the links does not exist, they will be created.
 
 # Testing
 
 * Run `test.sh`
 
+# Donation
+
+# ☕ Donation
+
+Help Red Skull to click the donation button:
+
+[![](arts/donator.png)](https://stalchmst.com/donation.html)
+
+
 # FAQ
 
-## I have run tocer. Can I add some items to the TOC and re run it?
+## I have run tocer. Can I add some items to the TOC and re-run it?
 
-Yes you can. `tocer` will turn your new items into links and create respective documents.
+Yes, you can. `tocer` will turn your new items into links and create respective documents.
 
-## I modify existing item's position and caption and re run tocer. Is that okay?
+## I change existing item's position and caption and re-run tocer. Is that okay?
 
-Yes it is okay. `tocer` will update all `title`, `breadcrumbs`, and `subtopics` to match your new structure.
+Yes, it is okay. `tocer` will update all `title`, `breadcrumbs`, and `subtopics` to match your new structure.
 
 ## Great job. Can I contribute?
 
@@ -83,8 +91,4 @@ Sure you can do:
 
 * Create pull request
 * Open issue
-* [Donate](https://www.paypal.com/paypalme/gofrendi). Please let me know a few things if you donate:
-  * How do you find this project useful?
-  * Can I put your username/identity in this README file as contributor?
-  * Is there any feature you want?
-  * Leave me your email address, so that I can reply to you.
+* Donate
