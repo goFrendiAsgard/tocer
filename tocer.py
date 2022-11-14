@@ -7,15 +7,13 @@ import subprocess
 import sys
 
 
-def to_kebab(string: str) -> str:
-    string = re.sub(r'[^a-zA-Z0-9\-]', ' ', string).strip()
-    string = string.replace(' ', '-').strip()
-    string = re.sub(r'(?<!^)(?=[A-Z])', '-', string).lower()
-    string = re.sub(r'(-+)', '-', string).lower()
-    return string
+def to_kebab(value: str) -> str:
+    value = re.sub(r'[^a-zA-Z0-9\-]', ' ', value).strip()
+    value = "-".join(value.lower().split())
+    return value
 
-def to_capital_first_letter(string: str) -> str:
-    return re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), string, 1)
+def to_capital_first_letter(value: str) -> str:
+    return re.sub('([a-zA-Z])', lambda x: x.groups()[0].upper(), value, 1)
 
 def create_start_tag(tag_name: str) -> str:
     return '<!--start{}-->'.format(to_capital_first_letter(tag_name))

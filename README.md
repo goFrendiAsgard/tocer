@@ -70,7 +70,7 @@ git clone git@github.com:state-alchemists/tocer.git ${HOME}/tocer
 
 Help Red Skull to click the donation button:
 
-[![](arts/donator.png)](https://stalchmst.com/donation.html)
+[![](arts/donator.png)](https://stalchmst.com/donation)
 
 
 # ❓ FAQ
